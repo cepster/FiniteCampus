@@ -11,6 +11,29 @@ app.use(cors());
 
 // TODO:
 
+let grades = [
+  {
+    id: 1,
+    studentName: "Bart Simpson",
+    grade: "F"
+  },
+  {
+    id: 2,
+    studentName: "Milhouse Van Houten",
+    grade: "C"
+  },
+  {
+    id: 3,
+    studentName: "Lisa Simpson",
+    grade: "A+"
+  },
+  {
+    id: 4,
+    studentName: "Martin Prince",
+    grade: "A"
+  }
+];
+
 app.get("/", (req, res) => {
   res.status(200).send("GradesCalculator Is Working");
 });
