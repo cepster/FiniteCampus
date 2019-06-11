@@ -1,15 +1,14 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 var cors = require("cors");
 
 let newNotifications = [];
-let grades = [];
 
+const port = 4002;
 const app = express();
 app.use(cors());
 
 app.get("/helloWorld", (req, res) => {
-  res.status(200).send("Hello!");
+  res.status(200).send("Notifications works!!");
 });
 
 app.get("/newNotifications", (req, res) => {
@@ -17,22 +16,11 @@ app.get("/newNotifications", (req, res) => {
   newNotifications = [];
 });
 
-app.post("/saveGradebook", bodyParser.json(), (req, res) => {
-  calculateGrades().then(() => {
-    sendNotifications(req.body);
-    res.status(200).send(req.body);
-  });
-});
+// TODO: Read from queue and write notifications
 
-app.listen(4000, () => console.log(`Example app listening on port 4000!`));
-
-let calculateGrades = () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve();
-    }, 5000);
-  });
-};
+app.listen(port, () =>
+  console.log(`Notifications Service listening on port ${port}!`)
+);
 
 let sendNotifications = newScores => {
   newScores.forEach(score => {

@@ -131,7 +131,7 @@ export class GradebookComponent implements OnInit {
     setInterval(() => {
       console.log("Getting notifications");
       this.http
-        .get<string[]>("http://localhost:4000/newNotifications")
+        .get<string[]>("http://localhost:4002/newNotifications")
         .subscribe((notifications: string[]) => {
           if (notifications.length > 0) {
             notifications.forEach(n => {
