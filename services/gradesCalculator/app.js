@@ -1,15 +1,5 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 var cors = require("cors");
-
-let newNotifications = [];
-let grades = [];
-
-const app = express();
-const port = 4001;
-app.use(cors());
-
-// TODO:
 
 let grades = [
   {
@@ -34,31 +24,54 @@ let grades = [
   }
 ];
 
-app.get("/", (req, res) => {
-  res.status(200).send("GradesCalculator Is Working");
-});
+const app = express();
+const port = 4001;
+app.use(cors());
 
-app.get("/grades", (req, res) => {});
+// TODO: Read from message queue, re-calculate grades
+
+app.get("/grades", (req, res) => {
+  res.status(200).send(grades);
+});
 
 app.listen(port, () =>
   console.log(`Grades Calculator Service listening on port ${port}!`)
 );
 
-let calculateGrades = newScores => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      newScores.forEach(score => {
-        grades = grades.map(g => {
-          if (g.studentName === score.studentName) {
-            g.grade = getRandomGrade();
-          }
+var open = require("amqplib").connect("amqp://localhost");
 
-          return g;
-        });
+// Consumer
+open
+  .then(function(conn) {
+    return conn.createChannel();
+  })
+  .then(function(ch) {
+    return ch.assertQueue("gradebook").then(function(ok) {
+      return ch.consume("gradebook", function(msg) {
+        if (msg !== null) {
+          console.log(msg.content.toString());
+          calculateGrades(JSON.parse(msg.content.toString()));
+          ch.ack(msg);
+        }
       });
-      resolve();
-    }, 5000);
-  });
+    });
+  })
+  .catch(console.warn);
+
+let calculateGrades = newScores => {
+  console.log("Got message, calculating grades");
+  console.log(newScores);
+  setTimeout(() => {
+    newScores.forEach(score => {
+      grades = grades.map(g => {
+        if (g.studentName === score.studentName) {
+          g.grade = getRandomGrade();
+        }
+
+        return g;
+      });
+    });
+  }, 5000);
 };
 
 let getRandomGrade = () => {

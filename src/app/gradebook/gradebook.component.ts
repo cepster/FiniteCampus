@@ -175,7 +175,7 @@ export class GradebookComponent implements OnInit {
 
   fetchGrades() {
     setInterval(() => {
-      this.http.get("http://localhost:4000/grades").subscribe((a: any) => {
+      this.http.get("http://localhost:4001/grades").subscribe((a: any) => {
         this.fakeGrades = a;
       });
     }, 2000);
