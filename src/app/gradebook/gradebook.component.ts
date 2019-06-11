@@ -11,6 +11,12 @@ export interface FakeGradebook {
   divisionWorksheetScore: FakeScore;
 }
 
+export interface FakeGrades {
+  id: number;
+  studentName: string;
+  grade: string;
+}
+
 export interface FakeScore {
   score: string;
   dirty: boolean;
@@ -119,17 +125,42 @@ export class GradebookComponent implements OnInit {
     }
   ];
 
+  displayedGradesColumns: string[] = ["studentName", "grade"];
+
+  public fakeGrades: FakeGrades[] = [
+    {
+      id: 1,
+      studentName: "Bart Simpson",
+      grade: "F"
+    },
+    {
+      id: 2,
+      studentName: "Milhouse Van Houten",
+      grade: "C"
+    },
+    {
+      id: 3,
+      studentName: "Lisa Simpson",
+      grade: "A+"
+    },
+    {
+      id: 4,
+      studentName: "Martin Prince",
+      grade: "A"
+    }
+  ];
+
   public saving = false;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
     this.fetchNotifications();
+    this.fetchGrades();
   }
 
   fetchNotifications() {
     setInterval(() => {
-      console.log("Getting notifications");
       this.http
         .get<string[]>("http://localhost:4000/newNotifications")
         .subscribe((notifications: string[]) => {
@@ -139,6 +170,14 @@ export class GradebookComponent implements OnInit {
             });
           }
         });
+    }, 2000);
+  }
+
+  fetchGrades() {
+    setInterval(() => {
+      this.http.get("http://localhost:4000/grades").subscribe((a: any) => {
+        this.fakeGrades = a;
+      });
     }, 2000);
   }
 
