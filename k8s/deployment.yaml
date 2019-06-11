@@ -1,0 +1,217 @@
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: finite
+---
+# UI Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: finite-ui-service
+  labels:
+    app: finite-ui-service
+  namespace: finite
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: finite-ui
+  type: NodePort
+---
+# Gradebook Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: finite-gradebook-service
+  labels:
+    app: finite-gradebook-service
+  namespace: finite
+spec:
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000
+  selector:
+    app: finite-gradebook
+  type: NodePort
+---
+# Grades Calculator Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: finite-grades-calculator-service
+  labels:
+    app: finite-grades-calculator-service
+  namespace: finite
+spec:
+  ports:
+    - protocol: TCP
+      port: 4001
+      targetPort: 4001
+  selector:
+    app: finite-grades-calculator
+  type: NodePort
+---
+# Notifications Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: finite-notifications-service
+  labels:
+    app: finite-notifications-service
+  namespace: finite
+spec:
+  ports:
+    - protocol: TCP
+      port: 4002
+      targetPort: 4002
+  selector:
+    app: finite-notifications
+  type: NodePort
+---
+# Ingress
+# kubectl port-forward -n ingress-nginx nginx-ingress-controller-777f447485-8fdmm 8888:80
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: finite-ingress
+  namespace: finite
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: gradebook.finite.com
+      http:
+        paths:
+          - path: /gradebook/?(.*)
+            backend:
+              serviceName: finite-gradebook-service
+              servicePort: 4000
+          - path: /grades/?(.*)
+            backend:
+              serviceName: finite-grades-calculator-service
+              servicePort: 4001
+          - path: /notifications/?(.*)
+            backend:
+              serviceName: finite-notifications-service
+              servicePort: 4002
+          - path: /ui/?(.*)
+            backend:
+              serviceName: finite-ui-service
+              servicePort: 80
+---
+# UI Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finite-ui-dep
+  namespace: finite
+spec:
+  selector:
+    matchLabels:
+      app: finite-ui
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: finite-ui
+    spec:
+      containers:
+        - name: finite-ui-ctr
+          image: docker-snapshot-virtual.artifactory.infinitecampus.com/k8s-devu-ui:latest
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+---
+# Gradebook Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finite-gradebook-dep
+  namespace: finite
+spec:
+  selector:
+    matchLabels:
+      app: finite-gradebook
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: finite-gradebook
+    spec:
+      containers:
+        - name: finite-gradebook-ctr
+          image: docker-snapshot-virtual.artifactory.infinitecampus.com/k8s-devu-gradebook:latest
+          ports:
+            - containerPort: 4000
+          imagePullPolicy: Always
+---
+# Grades Calculator Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finite-grades-calculator-dep
+  namespace: finite
+spec:
+  selector:
+    matchLabels:
+      app: finite-grades-calculator
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: finite-grades-calculator
+    spec:
+      containers:
+        - name: finite-grades-calculator-ctr
+          image: docker-snapshot-virtual.artifactory.infinitecampus.com/k8s-devu-grades-calculator:latest
+          ports:
+            - containerPort: 4001
+          imagePullPolicy: Always
+---
+# Notifications Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finite-notifications-dep
+  namespace: finite
+spec:
+  selector:
+    matchLabels:
+      app: finite-notifications
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: finite-notifications
+    spec:
+      containers:
+        - name: finite-notifications-ctr
+          image: docker-snapshot-virtual.artifactory.infinitecampus.com/k8s-devu-notifications:latest
+          ports:
+            - containerPort: 4002
+          imagePullPolicy: Always

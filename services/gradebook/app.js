@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 
 app.post("/saveGradebook", bodyParser.json(), (req, res) => {
-  let open = amqp.connect("amqp://localhost:5672");
+  let open = amqp.connect("amqp://mattrichardsmpb.infinitecampus.com:5672");
 
   // Publisher
   open

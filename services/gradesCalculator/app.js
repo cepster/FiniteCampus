@@ -1,5 +1,6 @@
 const express = require("express");
-var cors = require("cors");
+const cors = require("cors");
+const amqp = require("amqplib");
 
 let grades = [
   {
@@ -24,43 +25,49 @@ let grades = [
   }
 ];
 
-const app = express();
 const port = 4001;
+const app = express();
 app.use(cors());
-
-// TODO: Read from message queue, re-calculate grades
 
 app.get("/grades", (req, res) => {
   res.status(200).send(grades);
 });
 
-app.listen(port, () =>
-  console.log(`Grades Calculator Service listening on port ${port}!`)
-);
+app.listen(port, () => {
+  startMessageQueueListener();
+  console.log(`Grades Calculator Service listening on port ${port}!`);
+});
 
-var open = require("amqplib").connect("amqp://localhost");
+/*
+ * RabbitMQ Consumer
+ */
+const rabbitEndpoint = "mattrichardsmpb.infinitecampus.com";
+const gradesChannel = "gradebook";
+const startMessageQueueListener = () => {
+  var open = amqp.connect(`amqp://${rabbitEndpoint}`);
 
-// Consumer
-open
-  .then(function(conn) {
-    return conn.createChannel();
-  })
-  .then(function(ch) {
-    return ch.assertQueue("gradebook").then(function(ok) {
-      return ch.consume("gradebook", function(msg) {
-        if (msg !== null) {
-          console.log(msg.content.toString());
-          calculateGrades(JSON.parse(msg.content.toString()));
-          ch.ack(msg);
-        }
+  // Consumer
+  open
+    .then(function(conn) {
+      return conn.createChannel();
+    })
+    .then(function(ch) {
+      return ch.assertQueue(gradesChannel).then(function(ok) {
+        return ch.consume(gradesChannel, function(msg) {
+          if (msg !== null) {
+            calculateGrades(JSON.parse(msg.content.toString()));
+            ch.ack(msg);
+          }
+        });
       });
-    });
-  })
-  .catch(console.warn);
+    })
+    .catch(console.warn);
+};
 
+/*
+ * Calculates New Grades based on Payload
+ */
 let calculateGrades = newScores => {
-  console.log("Got message, calculating grades");
-  console.log(newScores);
   setTimeout(() => {
     newScores.forEach(score => {
       grades = grades.map(g => {
@@ -74,6 +81,9 @@ let calculateGrades = newScores => {
   }, 5000);
 };
 
+/*
+ * Returns a random letter grade
+ */
 let getRandomGrade = () => {
   return [
     "A+",

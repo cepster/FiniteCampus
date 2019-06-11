@@ -162,7 +162,9 @@ export class GradebookComponent implements OnInit {
   fetchNotifications() {
     setInterval(() => {
       this.http
-        .get<string[]>("http://localhost:4002/newNotifications")
+        .get<string[]>(
+          "http://gradebook.finite.com:8888/notifications/newNotifications"
+        )
         .subscribe((notifications: string[]) => {
           if (notifications.length > 0) {
             notifications.forEach(n => {
@@ -175,9 +177,11 @@ export class GradebookComponent implements OnInit {
 
   fetchGrades() {
     setInterval(() => {
-      this.http.get("http://localhost:4001/grades").subscribe((a: any) => {
-        this.fakeGrades = a;
-      });
+      this.http
+        .get("http://gradebook.finite.com:8888/grades/grades")
+        .subscribe((a: any) => {
+          this.fakeGrades = a;
+        });
     }, 2000);
   }
 
@@ -227,7 +231,10 @@ export class GradebookComponent implements OnInit {
 
     if (dirtyScores.length > 0) {
       this.http
-        .post("http://localhost:4000/saveGradebook", dirtyScores)
+        .post(
+          "http://gradebook.finite.com:8888/gradebook/saveGradebook",
+          dirtyScores
+        )
         .subscribe(res => {
           this.saving = false;
         });

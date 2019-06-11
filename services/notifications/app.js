@@ -13,33 +13,43 @@ app.get("/newNotifications", (req, res) => {
   newNotifications = [];
 });
 
-var open = amqp.connect("amqp://localhost");
+app.listen(port, () => {
+  startMessageQueueListener();
+  console.log(`Notifications Service listening on port ${port}!`);
+});
 
-// Consumer
-open
-  .then(function(conn) {
-    return conn.createChannel();
-  })
-  .then(function(ch) {
-    return ch.assertQueue("notifications").then(function(ok) {
-      return ch.consume("notifications", function(msg) {
-        if (msg !== null) {
-          console.log(msg.content.toString());
-          sendNotifications(JSON.parse(msg.content.toString()));
-          ch.ack(msg);
-        }
+/*
+ * RabbitMQ Consumer
+ */
+const rabbitEndpoint = "mattrichardsmpb.infinitecampus.com";
+const notificationsChannel = "notifications";
+const startMessageQueueListener = () => {
+  var open = amqp.connect(`amqp://${rabbitEndpoint}`);
+
+  // Consumer
+  open
+    .then(function(conn) {
+      return conn.createChannel();
+    })
+    .then(function(ch) {
+      return ch.assertQueue(notificationsChannel).then(function(ok) {
+        return ch.consume(notificationsChannel, function(msg) {
+          if (msg !== null) {
+            console.log(msg.content.toString());
+            sendNotifications(JSON.parse(msg.content.toString()));
+            ch.ack(msg);
+          }
+        });
       });
-    });
-  })
-  .catch(console.warn);
+    })
+    .catch(console.warn);
+};
 
-app.listen(port, () =>
-  console.log(`Notifications Service listening on port ${port}!`)
-);
-
+/*
+ * Generates notifications from the RabbitMQ payload
+ */
 let sendNotifications = newScores => {
   newScores.forEach(score => {
-    console.log(score);
     newNotifications.push(
       `${score.studentName} has scored a ${score.score} on ${
         score.assignmentName
