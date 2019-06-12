@@ -8,6 +8,8 @@ const app = express();
 app.use(cors());
 
 app.post("/saveGradebook", bodyParser.json(), (req, res) => {
+  saveGradebook();
+
   let open = amqp.connect(
     "amqp://gdrcgqtq:6QzX6eTcdFLhPU86FYqbXi6H3eMl198L@shrimp.rmq.cloudamqp.com/gdrcgqtq"
   );
@@ -20,6 +22,7 @@ app.post("/saveGradebook", bodyParser.json(), (req, res) => {
     .then(function(ch) {
       return ch.assertQueue("gradebook").then(function(ok) {
         ch.assertQueue("notifications").then(function(ok2) {
+          // Send Notification to Message Queue
           return ch.sendToQueue(
             "notifications",
             Buffer.from(JSON.stringify(req.body))
@@ -40,3 +43,7 @@ app.post("/saveGradebook", bodyParser.json(), (req, res) => {
 app.listen(port, () =>
   console.log(`Gradebook Service listening on port ${port}!`)
 );
+
+const saveGradebook = () => {
+  console.log("Saving Grades!");
+};
