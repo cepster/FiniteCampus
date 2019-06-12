@@ -127,7 +127,7 @@ spec:
     spec:
       containers:
         - name: finite-ui-ctr
-          image: docker-snapshot-virtual.artifactory.infinitecampus.com/k8s-devu-ui:latest
+          image: cepster/k8s-devu-ui:latest
           ports:
             - containerPort: 80
           imagePullPolicy: Always
@@ -155,7 +155,7 @@ spec:
     spec:
       containers:
         - name: finite-gradebook-ctr
-          image: docker-snapshot-virtual.artifactory.infinitecampus.com/k8s-devu-gradebook:latest
+          image: cepster/k8s-devu-gradebook:latest
           ports:
             - containerPort: 4000
           imagePullPolicy: Always
@@ -183,7 +183,7 @@ spec:
     spec:
       containers:
         - name: finite-grades-calculator-ctr
-          image: docker-snapshot-virtual.artifactory.infinitecampus.com/k8s-devu-grades-calculator:latest
+          image: cepster/k8s-devu-grades-calculator:latest
           ports:
             - containerPort: 4001
           imagePullPolicy: Always
@@ -211,7 +211,7 @@ spec:
     spec:
       containers:
         - name: finite-notifications-ctr
-          image: docker-snapshot-virtual.artifactory.infinitecampus.com/k8s-devu-notifications:latest
+          image: cepster/k8s-devu-notifications:latest
           ports:
             - containerPort: 4002
           imagePullPolicy: Always

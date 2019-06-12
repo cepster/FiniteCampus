@@ -44,7 +44,9 @@ app.listen(port, () => {
 const rabbitEndpoint = "mattrichardsmpb.infinitecampus.com";
 const gradesChannel = "gradebook";
 const startMessageQueueListener = () => {
-  var open = amqp.connect(`amqp://${rabbitEndpoint}`);
+  var open = amqp.connect(
+    "amqp://gdrcgqtq:6QzX6eTcdFLhPU86FYqbXi6H3eMl198L@shrimp.rmq.cloudamqp.com/gdrcgqtq"
+  );
 
   // Consumer
   open

@@ -162,14 +162,22 @@ export class GradebookComponent implements OnInit {
   fetchNotifications() {
     setInterval(() => {
       this.http
-        .get<string[]>(
-          "http://gradebook.finite.com:8888/notifications/newNotifications"
+        .get<boolean>(
+          "http://gradebook.finite.com:8888/notifications/notificationsExist"
         )
-        .subscribe((notifications: string[]) => {
-          if (notifications.length > 0) {
-            notifications.forEach(n => {
-              toastr.success(n);
-            });
+        .subscribe((notificationsExist: boolean) => {
+          if (notificationsExist) {
+            this.http
+              .get<string[]>(
+                "http://gradebook.finite.com:8888/notifications/newNotifications"
+              )
+              .subscribe((notifications: string[]) => {
+                if (notifications.length > 0) {
+                  notifications.forEach(n => {
+                    toastr.success(n);
+                  });
+                }
+              });
           }
         });
     }, 2000);
