@@ -80,26 +80,26 @@ metadata:
   name: finite-ingress
   namespace: finite
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.rule.type: PathPrefixStrip
 spec:
   rules:
     - host: gradebook.finite.com
       http:
         paths:
-          - path: /gradebook/?(.*)
+          - path: /gradebook
             backend:
               serviceName: finite-gradebook-service
               servicePort: 4000
-          - path: /grades/?(.*)
+          - path: /grades
             backend:
               serviceName: finite-grades-calculator-service
               servicePort: 4001
-          - path: /notifications/?(.*)
+          - path: /notifications
             backend:
               serviceName: finite-notifications-service
               servicePort: 4002
-          - path: /ui/?(.*)
+          - path: /ui
             backend:
               serviceName: finite-ui-service
               servicePort: 80
